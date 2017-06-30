@@ -1,27 +1,4 @@
 from enum import Enum
-xCClockwise = [[1, 0, 0],
-               [0, 0, -1],
-               [0, 1, 0]]
-
-xClockwise = [[1, 0, 0],
-              [0, 0, 1],
-              [0, -1, 0]]
-
-yCClockwise = [[0, 0, 1],
-               [0, 1, 0],
-               [-1, 0, 0]]
-
-yClockwise = [[0, 0, -1],
-              [0, 1, 0],
-              [1, 0, 0]]
-
-zCClockwise = [[0, -1, 0],
-               [1, 0, 0],
-               [0, 0, 1]]
-
-zClockwise = [[0, 1, 0],
-              [-1, 0, 0],
-              [0, 0, 1]]
 
 class Axis(Enum):
     X = "x"
@@ -31,9 +8,7 @@ class Axis(Enum):
 class CubePiece:
 
     def __init__(self, color_x, color_y, color_z, loc):
-        self.color_x = color_x
-        self.color_y = color_y
-        self.color_z = color_z
+        self.colors = [color_x, color_y, color_z]
         self.type = None
         self.location = loc
         self.sides = {}
@@ -46,6 +21,12 @@ class CubePiece:
         for row in rMatrix:
             newVector.append(row[0] * v[0] + row[1] * v[1] + row[2] * v[2])
         self.location = newVector
+
+    def dot(self, otherVector):
+        if len(otherVector) > 3: raise Exception
+        return self.location[0] * otherVector[0] \
+               + self.location[1] * otherVector[1] \
+               + self.location[2] * otherVector[2]
 
     def __findSides(self):
         sides = {}
@@ -77,24 +58,17 @@ class CubePiece:
 
     def __swapColor(self, axis):
         if axis == Axis.X:
-            color_x, color_y, color_z = self.color_x, self.color_z, self.color_y
+            color_x, color_y, color_z = self.colors[0], self.colors[2], self.colors[1]
         elif axis == Axis.Y:
-            color_x, color_y, color_z = self.color_z, self.color_y, self.color_x
+            color_x, color_y, color_z = self.colors[2], self.colors[1], self.colors[0]
         else:
-            color_x, color_y, color_z = self.color_y, self.color_x, self.color_z
+            color_x, color_y, color_z = self.colors[1], self.colors[0], self.colors[2]
 
         self.setColor(color_x, color_y, color_z)
 
     def setColor(self, color1, color2, color3):
-        self.color_x = color1
-        self.color_y = color2
-        self.color_z = color3
+        self.colors = [color1, color2, color3]
 
     def __str__(self):
-        return str(self.location) + "\nx: " + self.color_x + " y: " + self.color_y + " z: " + self.color_z + "\nSides: " + str(self.sides)
+        return str(self.location) + "\nx: " + str(self.colors[0]) + " y: " + str(self.colors[1]) + " z: " + str(self.colors[2]) + "\nSides: " + str(self.sides)
 
-
-if __name__ == "__main__":
-    a = CubePiece("Green", "Red", "White", [0,-1,0])
-    a.rotate(xClockwise)
-    print(a)
